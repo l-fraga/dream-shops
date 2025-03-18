@@ -6,7 +6,7 @@ import java.util.List;
 
 
 public interface IProductService {
-        
+        // Defining the Product Service Interface
         Product getProductById(Long id);
     
         Product saveProduct(Product product);
