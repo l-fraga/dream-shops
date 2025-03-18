@@ -1,16 +1,18 @@
 package com.dailycodework.dreamshops.service.product;
 
+import com.dailycodework.dreamshops.Repository.ProductRepository;
+import com.dailycodework.dreamshops.exceptions.ProductNotFoundException;
 import com.dailycodework.dreamshops.model.Product;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class ProductService implements IProductService {
+
+    private ProductRepository productRepository;
 
     @Override
     public Product getProductById(Long id) {
-        throw new UnsupportedOperationException("Unimplemented method 'getProductById'");
+        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found!"));
     }
 
     @Override
