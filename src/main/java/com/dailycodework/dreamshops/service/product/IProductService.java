@@ -1,19 +1,20 @@
 package com.dailycodework.dreamshops.service.product;
 
 import com.dailycodework.dreamshops.model.Product;
+import com.dailycodework.dreamshops.request.AddProductRequest;
+import com.dailycodework.dreamshops.request.ProductUpdateRequest;
 
 import java.util.List;
 
 
 public interface IProductService {
-        // Defining the Product Service Interface
         Product getProductById(Long id);
     
-        Product saveProduct(Product product);
+        Product addProduct(AddProductRequest request);
     
         void deleteProductById(Long id);
 
-        void updateProduct(Product product, Long id);
+        Product updateProduct(ProductUpdateRequest product, Long id);
 
         List<Product> getAllProducts();
 
