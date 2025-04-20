@@ -4,7 +4,7 @@ import java.util.List;
 
 
 import com.dailycodework.dreamshops.model.Category;
-import com.dailycodework.dreamshops.Repository.CategoryRepository;
+import com.dailycodework.dreamshops.repository.CategoryRepository;
 import com.dailycodework.dreamshops.exceptions.ResourceNotFoundException;
 import com.dailycodework.dreamshops.exceptions.AlreadyExistsException;
 

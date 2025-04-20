@@ -1,4 +1,4 @@
-package com.dailycodework.dreamshops.Repository;
+package com.dailycodework.dreamshops.repository;
 
 import java.util.List;
 
@@ -18,6 +18,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByBrandAndName(String brand, String name);
 
-    Long countBrandAndName(String brand, String name);
+    Long countByBrandAndName(String brand, String name);
 
 }

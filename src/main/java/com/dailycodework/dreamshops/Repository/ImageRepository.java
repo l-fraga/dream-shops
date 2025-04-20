@@ -1,4 +1,4 @@
-package com.dailycodework.dreamshops.Repository;
+package com.dailycodework.dreamshops.repository;
 
 import java.util.List;
 
