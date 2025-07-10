@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dailycodework.dreamshops.dto.ProductDto;
+import com.dailycodework.dreamshops.exceptions.AlreadyExistsException;
 import com.dailycodework.dreamshops.exceptions.ResourceNotFoundException;
 import com.dailycodework.dreamshops.model.Product;
 import com.dailycodework.dreamshops.request.AddProductRequest;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.CONFLICT;
 
 import java.util.List;
 
@@ -54,23 +56,23 @@ public class ProductController {
 
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest product) {
-        try{
-            Product newProduct = productService.addProduct(product);
-            return ResponseEntity.ok(new ApiResponse("Add Product success!", newProduct));
-        } catch (Exception e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-                                .body(new ApiResponse("Add product failed!", e.getMessage()));
+        try {
+            Product theProduct = productService.addProduct(product);
+            ProductDto productDto = productService.convertToDto(theProduct);
+            return ResponseEntity.ok(new ApiResponse("Add product success!", productDto));
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(CONFLICT).body(new ApiResponse(e.getMessage(), null));
         }
     }
-
+    
     @PutMapping("/product/{productId}/update")
-    public ResponseEntity<ApiResponse> updateProduct(@RequestBody ProductUpdateRequest request, @PathVariable Long productId) {
+    public  ResponseEntity<ApiResponse> updateProduct(@RequestBody ProductUpdateRequest request, @PathVariable Long productId) {
         try {
-            Product updatedProduct = productService.updateProduct(request, productId);
-            return ResponseEntity.ok(new ApiResponse("Update product success!", updatedProduct));
+            Product theProduct = productService.updateProduct(request, productId);
+            ProductDto productDto = productService.convertToDto(theProduct);
+            return ResponseEntity.ok(new ApiResponse("Update product success!", productDto));
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND)
-                                .body(new ApiResponse(e.getMessage(), null));
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
     }
 
