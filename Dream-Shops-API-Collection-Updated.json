@@ -1,0 +1,1040 @@
+{
+	"info": {
+		"_postman_id": "dream-shops-api-collection-updated",
+		"name": "Dream Shops API - Updated",
+		"description": "Updated Dream Shops API Collection - E-commerce System with fixes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "dream-shops"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/{{userId}}/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{userId}}",
+								"user"
+							]
+						},
+						"description": "Retrieves a specific user by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@email.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/add",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"add"
+							]
+						},
+						"description": "Creates a new user in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"John Updated\",\n    \"lastName\": \"Doe Smith\",\n    \"email\": \"john.updated@email.com\",\n    \"password\": \"newPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/{{userId}}/update",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{userId}}",
+								"update"
+							]
+						},
+						"description": "Updates an existing user's data"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/{{userId}}/delete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{userId}}",
+								"delete"
+							]
+						},
+						"description": "Removes a user from the system"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for user management"
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/all",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"all"
+							]
+						},
+						"description": "Returns all available products"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/product/{{productId}}/product",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"product",
+								"{{productId}}",
+								"product"
+							]
+						},
+						"description": "Retrieves a specific product by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Smartphone XYZ\",\n    \"brand\": \"Brand ABC\",\n    \"price\": 999.99,\n    \"inventory\": 50,\n    \"description\": \"Latest generation smartphone\",\n    \"category\": {\n        \"id\": 1,\n        \"name\": \"Electronics\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/add",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"add"
+							]
+						},
+						"description": "Adds a new product to the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Smartphone XYZ Updated\",\n    \"brand\": \"Brand ABC\",\n    \"price\": 899.99,\n    \"inventory\": 45,\n    \"description\": \"Latest generation smartphone with discount\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/product/{{productId}}/update",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"product",
+								"{{productId}}",
+								"update"
+							]
+						},
+						"description": "Updates an existing product's data"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/product/{{productId}}/delete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"product",
+								"{{productId}}",
+								"delete"
+							]
+						},
+						"description": "Removes a product from the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products by Brand and Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/products/by/brand-and-name?brandName={{brandName}}&productName={{productName}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"products",
+								"by",
+								"brand-and-name"
+							],
+							"query": [
+								{
+									"key": "brandName",
+									"value": "{{brandName}}"
+								},
+								{
+									"key": "productName",
+									"value": "{{productName}}"
+								}
+							]
+						},
+						"description": "Searches for products by specific brand and name"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products by Category and Brand",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/products/by/category-and-brand?category={{category}}&brand={{brand}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"products",
+								"by",
+								"category-and-brand"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "{{category}}"
+								},
+								{
+									"key": "brand",
+									"value": "{{brand}}"
+								}
+							]
+						},
+						"description": "Searches for products by category and brand"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products by Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/products/{{name}}/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"products",
+								"{{name}}",
+								"products"
+							]
+						},
+						"description": "Searches for products by name"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products by Brand",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/product/by-brand?brand={{brand}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"product",
+								"by-brand"
+							],
+							"query": [
+								{
+									"key": "brand",
+									"value": "{{brand}}"
+								}
+							]
+						},
+						"description": "Searches for products by specific brand"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products by Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/product/{{category}}/all/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"product",
+								"{{category}}",
+								"all",
+								"products"
+							]
+						},
+						"description": "Searches for all products in a specific category"
+					},
+					"response": []
+				},
+				{
+					"name": "Count Products by Brand and Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/product/count/by-brand/and-name?brand={{brand}}&name={{name}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"product",
+								"count",
+								"by-brand",
+								"and-name"
+							],
+							"query": [
+								{
+									"key": "brand",
+									"value": "{{brand}}"
+								},
+								{
+									"key": "name",
+									"value": "{{name}}"
+								}
+							]
+						},
+						"description": "Counts how many products exist with a specific brand and name"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for product management"
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/all",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"all"
+							]
+						},
+						"description": "Returns all available categories"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New Category\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/add",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"add"
+							]
+						},
+						"description": "Adds a new category to the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/category/{{categoryId}}/category",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"category",
+								"{{categoryId}}",
+								"category"
+							]
+						},
+						"description": "Retrieves a specific category by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category by Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/category/{{categoryName}}/category",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"category",
+								"{{categoryName}}",
+								"category"
+							]
+						},
+						"description": "Retrieves a specific category by name"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/category/{{categoryId}}/delete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"category",
+								"{{categoryId}}",
+								"delete"
+							]
+						},
+						"description": "Removes a category from the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Category\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/category/{{categoryId}}/update",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"category",
+								"{{categoryId}}",
+								"update"
+							]
+						},
+						"description": "Updates an existing category's data"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for category management"
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Get Cart",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/carts/{{cartId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"carts",
+								"{{cartId}}"
+							]
+						},
+						"description": "Retrieves a specific cart by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Clear Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/carts/{{cartId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"carts",
+								"{{cartId}}"
+							]
+						},
+						"description": "Removes all items from a cart"
+					},
+					"response": []
+				},
+				{
+					"name": "Calculate Cart Total Price",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/carts/{{cartId}}/total-price",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"carts",
+								"{{cartId}}",
+								"total-price"
+							]
+						},
+						"description": "Calculates the total price of all items in the cart"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for cart management"
+		},
+		{
+			"name": "Cart Items",
+			"item": [
+				{
+					"name": "Add Item to Cart",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/cartItems/add?productId={{productId}}&quantity={{quantity}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"cartItems",
+								"add"
+							],
+							"query": [
+								{
+									"key": "productId",
+									"value": "{{productId}}"
+								},
+								{
+									"key": "quantity",
+									"value": "{{quantity}}"
+								}
+							]
+						},
+						"description": "Adds a product to the cart with specific quantity"
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Item from Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/cartItems/{{itemId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"cartItems",
+								"{{itemId}}"
+							]
+						},
+						"description": "Removes a specific item from the cart"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Item Quantity",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/cartItems/{{itemId}}/update?quantity={{quantity}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"cartItems",
+								"{{itemId}}",
+								"update"
+							],
+							"query": [
+								{
+									"key": "quantity",
+									"value": "{{quantity}}"
+								}
+							]
+						},
+						"description": "Updates the quantity of an item in the cart"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for cart item management"
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/orders/order?userId={{userId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"orders",
+								"order"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Creates a new order for a specific user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/orders/{{orderId}}/order",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"orders",
+								"{{orderId}}",
+								"order"
+							]
+						},
+						"description": "Retrieves a specific order by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/orders/user/{{userId}}/order",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"orders",
+								"user",
+								"{{userId}}",
+								"order"
+							]
+						},
+						"description": "Retrieves all orders for a specific user"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for order management"
+		},
+		{
+			"name": "Images",
+			"item": [
+				{
+					"name": "Upload Images",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "productId",
+									"value": "{{productId}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/images/upload",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"images",
+								"upload"
+							]
+						},
+						"description": "Uploads one or more images for a product"
+					},
+					"response": []
+				},
+				{
+					"name": "Download Image",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/images/image/download/{{imageId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"images",
+								"image",
+								"download",
+								"{{imageId}}"
+							]
+						},
+						"description": "Downloads a specific image"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Image",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/images/updateImage/{{imageId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"images",
+								"updateImage",
+								"{{imageId}}"
+							]
+						},
+						"description": "Updates an existing image"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Image",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/images/delete/{{imageId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"images",
+								"delete",
+								"{{imageId}}"
+							]
+						},
+						"description": "Removes an image from the system"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for image management"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "productId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "cartId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "itemId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "imageId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "categoryId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "categoryName",
+			"value": "Electronics",
+			"type": "string"
+		},
+		{
+			"key": "brandName",
+			"value": "Brand ABC",
+			"type": "string"
+		},
+		{
+			"key": "productName",
+			"value": "Smartphone",
+			"type": "string"
+		},
+		{
+			"key": "brand",
+			"value": "Brand ABC",
+			"type": "string"
+		},
+		{
+			"key": "name",
+			"value": "Smartphone",
+			"type": "string"
+		},
+		{
+			"key": "category",
+			"value": "Electronics",
+			"type": "string"
+		},
+		{
+			"key": "quantity",
+			"value": "2",
+			"type": "string"
+		}
+	]
+} 

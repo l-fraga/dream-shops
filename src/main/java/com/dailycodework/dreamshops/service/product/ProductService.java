@@ -2,6 +2,7 @@ package com.dailycodework.dreamshops.service.product;
 
 import com.dailycodework.dreamshops.dto.ImageDto;
 import com.dailycodework.dreamshops.dto.ProductDto;
+import com.dailycodework.dreamshops.exceptions.AlreadyExistsException;
 import com.dailycodework.dreamshops.exceptions.ProductNotFoundException;
 import com.dailycodework.dreamshops.model.Category;
 import com.dailycodework.dreamshops.model.Image;
@@ -36,19 +37,26 @@ public class ProductService implements IProductService {
 
     @Override
     public Product addProduct(AddProductRequest request) {
-    
-        // Check if the category exists
-        // If it does, set it as the new product's category
-        // If it doesn't, create a new category and set it as the new product's category
-        // The set as the new product's category
+        // check if the category is found in the DB
+        // If Yes, set it as the new product category
+        // If No, the save it as a new category
+        // The set as the new product category.
+
+        if (productExists(request.getName(), request.getBrand())){
+            throw new AlreadyExistsException(request.getBrand() + " " + request.getName() + " already exists, you may update this product instead!");
+        }
 
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
-            .orElseGet(() -> {
-                Category newCategory = new Category(request.getCategory().getName());
-                return categoryRepository.save(newCategory);
-            });
+                .orElseGet(() -> {
+                    Category newCategory = new Category(request.getCategory().getName());
+                    return categoryRepository.save(newCategory);
+                });
         request.setCategory(category);
         return productRepository.save(createProduct(request, category));
+    }
+
+    private boolean productExists(String name , String brand) {
+        return productRepository.existsByNameAndBrand(name, brand);
     }
 
     private Product createProduct(AddProductRequest request, Category category) {
