@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements IUserService{
+public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
@@ -29,14 +29,14 @@ public class UserService implements IUserService{
     public User createUser(CreateUserRequest request) {
         return Optional.of(request)
                 .filter(user -> !userRepository.existsByEmail(request.getEmail()))
-                        .map(req -> {
-                            User user = new User();
-                            user.getEmail();
-                            user.getPassword();
-                            user.getFirstName();
-                            user.getLastName();
-                            return userRepository.save(user);
-                        }).orElseThrow(() -> new AlreadyExistsException(request.getEmail() + " already exists"));
+                .map(req -> {
+                    User user = new User();
+                    user.setEmail(request.getEmail());
+                    user.setPassword(request.getPassword());
+                    user.setFirstName(request.getFirstName());
+                    user.setLastName(request.getLastName());
+                    return userRepository.save(user);
+                }).orElseThrow(() -> new AlreadyExistsException(request.getEmail() + " already exists"));
 
     }
 
@@ -53,7 +53,7 @@ public class UserService implements IUserService{
 
     @Override
     public void deleteUser(Long userId) {
-        userRepository.findById(userId).ifPresentOrElse(userRepository :: delete, () -> {
+        userRepository.findById(userId).ifPresentOrElse(userRepository::delete, () -> {
             throw new RuntimeException("User not found!");
         });
     }

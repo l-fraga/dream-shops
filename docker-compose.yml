@@ -1,17 +1,61 @@
-services:
-  postgres:
-    image: postgres:latest
-    container_name: dream-shops-db
-    restart: always
-    environment:
-      POSTGRES_DB: dream_shops_db
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: 1234
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+version: "3.9"
 
+# ---------- REDE COMPARTILHADA ----------
+networks:
+  dreamshops:
+
+# ---------- VOLUMES PERSISTENTES ----------
 volumes:
-  postgres_data:
-    driver: local
+  #  docker volume create dreamshops-postgres-data
+  dreamshops-postgres-data:
+    external: true
+
+# ---------- SERVIÇOS ----------
+services:
+  # ------------------ PostgreSQL ------------------
+  postgres:
+    container_name: dreamshops-db
+    image: postgres:16
+    restart: on-failure:3
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - dreamshops
+    volumes:
+      - dreamshops-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"            # external:internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      start_period: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ------------------ Spring Boot APP ------------------
+  app:
+    container_name: dreamshops-app
+    build: .
+    restart: on-failure:3
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - dreamshops
+    environment:
+      # habilita depuração remota na porta 5005
+      JAVA_TOOL_OPTIONS: >-
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    ports:
+      - "8080:8080"            # HTTP  (external:internal)
+      - "5005:5005"            # JDWP (external:internal)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      start_period: 20s
+      interval: 10s
+      timeout: 5s
+      retries: 3
