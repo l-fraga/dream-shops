@@ -1,6 +1,7 @@
 package com.dailycodework.dreamshops.controller;
 
 import com.dailycodework.dreamshops.dto.OrderDto;
+import com.dailycodework.dreamshops.exceptions.ResourceNotFoundException;
 import com.dailycodework.dreamshops.model.Order;
 import com.dailycodework.dreamshops.response.ApiResponse;
 import com.dailycodework.dreamshops.service.order.IOrderService;
@@ -32,19 +33,19 @@ public class OrderController {
     public ResponseEntity<ApiResponse> getOrderById(@PathVariable Long orderId) {
         try {
             OrderDto order = orderService.getOrder(orderId);
-            return ResponseEntity.ok(new ApiResponse("Order Retrieved Successfully!", order));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Order Not Found!", e));
+            return ResponseEntity.ok(new ApiResponse("Item Order Success!", order));
+        } catch (ResourceNotFoundException e) {
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Oops!", e.getMessage()));
         }
     }
 
-    @GetMapping("/{userId}/orders")
+    @GetMapping("/user/{userId}/order")
     public ResponseEntity<ApiResponse> getUserOrders(@PathVariable Long userId) {
         try {
             List<OrderDto> order = orderService.getUserOrders(userId);
-            return ResponseEntity.ok(new ApiResponse("User Orders Retrieved Successfully!", order));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("User Orders Not Found!", e));
+            return ResponseEntity.ok(new ApiResponse("Item Order Success!", order));
+        } catch (ResourceNotFoundException e) {
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Oops!", e.getMessage()));
         }
     }
 }
