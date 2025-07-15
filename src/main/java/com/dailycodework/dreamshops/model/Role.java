@@ -1,22 +1,21 @@
 package com.dailycodework.dreamshops.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 public class Role {
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private  Long id;
     private String name;
 
     public Role(String name) {
