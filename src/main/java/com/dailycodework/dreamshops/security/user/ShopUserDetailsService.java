@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class ShopUserDatailsService implements UserDetailsService {
+public class ShopUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
