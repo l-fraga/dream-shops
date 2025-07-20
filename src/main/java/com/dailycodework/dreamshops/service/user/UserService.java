@@ -41,7 +41,6 @@ public class UserService implements IUserService {
                     user.setLastName(request.getLastName());
                     return userRepository.save(user);
                 }).orElseThrow(() -> new AlreadyExistsException(request.getEmail() + " already exists"));
-
     }
 
     @Override
