@@ -37,6 +37,15 @@ public class ShopConfig {
     private static final List<String> SECURED_URLS =
             List.of("/api/v1/carts/**", "/api/v1/cartItems/**");
 
+    private static final List<String> SWAGGER_URLS = List.of(
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/api-docs/**",
+            "/swagger-resources/**",
+            "/webjars/**"
+    );
+
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
@@ -64,22 +73,21 @@ public class ShopConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http.csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->auth.requestMatchers(SECURED_URLS.toArray(String[]::new)).authenticated()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(SWAGGER_URLS.toArray(String[]::new)).permitAll()
+                        .requestMatchers(SECURED_URLS.toArray(String[]::new)).authenticated()
                         .anyRequest().permitAll());
         http.authenticationProvider(daoAuthenticationProvider());
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
-
     }
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
-
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**") // Apply to all endpoints
