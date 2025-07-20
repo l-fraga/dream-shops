@@ -40,15 +40,15 @@ public class JwtUtils {
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date().getTime() + expirationTime)))
-                .signWith(key(), SignatureAlgorithm.ES256).compact();
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
     }
-
 
     public String getUsernameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build()
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)
                 .getBody().getSubject();
     }
 
@@ -57,7 +57,7 @@ public class JwtUtils {
             Jwts.parserBuilder()
                    .setSigningKey(key())
                    .build()
-                   .parseClaimsJwt(token);
+                   .parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
             throw new JwtException(e.getMessage());
