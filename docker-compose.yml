@@ -8,7 +8,7 @@ volumes:
   dreamshops-postgres-data:
     external: true
   #  docker volume create dreamshops-prometheus-data     (externo no servidor)
-  dreamsops-prometheus-data:
+  dreamshops-prometheus-data:
     external: true
 
 # ---------- SERVIÇOS ----------
@@ -73,7 +73,7 @@ services:
   prometheus:
     container_name: prometheus
     build:
-      context: .src/utils/prometheus
+      context: ./src/main/java/com/dailycodework/dreamshops/utils/prometheus
       dockerfile: Dockerfile
     image: dreamshops/prometheus
     environment:
@@ -82,9 +82,9 @@ services:
       - PROMETHEUS_INTERNAL_PORT=${PROMETHEUS_INTERNAL_PORT}
       - PROMETHEUS_EXTERNAL_PORT=${PROMETHEUS_EXTERNAL_PORT}
     volumes:
-      - dreamshops-prometheus-data
-      - ./src/utils/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./src/utils/prometheus/alerts.yml:/etc/prometheus/alerts.yml
+      - dreamshops-prometheus-data:/prometheus
+      - ./src/main/java/com/dailycodework/dreamshops/utils/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./src/main/java/com/dailycodework/dreamshops/utils/prometheus/alerts.yml:/etc/prometheus/alerts.yml
     networks:
       - dreamshops
     ports:
