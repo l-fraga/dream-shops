@@ -7,6 +7,9 @@ volumes:
   #  docker volume create dreamshops-postgres-data     (externo no servidor)
   dreamshops-postgres-data:
     external: true
+  #  docker volume create dreamshops-prometheus-data     (externo no servidor)
+  dreamsops-prometheus-data:
+    external: true
 
 # ---------- SERVIÇOS ----------
 services:
@@ -33,6 +36,19 @@ services:
       timeout: 5s
       retries: 3
 
+  # ------------------ PostgreSQL Exporter ------------------
+  postgresql-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgresql-exporter
+    environment:
+      - DATA_SOURCE_NAME=dreamshops_user://postgres:dreamshops_password@postgresql:5432/postgres?sslmode=disable
+    ports:
+      - "9187:9187"
+    networks:
+      - dreamshops
+    depends_on:
+      - postgres
+
   # ------------------ Spring Boot APP ------------------
   app:
     container_name: dreamshops-app
@@ -52,3 +68,33 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+  # Prometheus
+  prometheus:
+    container_name: prometheus
+    build:
+      context: .src/utils/prometheus
+      dockerfile: Dockerfile
+    image: dreamshops/prometheus
+    environment:
+      - PROMETHEUS_INTERNAL_HOST=${PROMETHEUS_INTERNAL_HOST}
+      - PROMETHEUS_EXTERNAL_HOST=${PROMETHEUS_EXTERNAL_HOST}
+      - PROMETHEUS_INTERNAL_PORT=${PROMETHEUS_INTERNAL_PORT}
+      - PROMETHEUS_EXTERNAL_PORT=${PROMETHEUS_EXTERNAL_PORT}
+    volumes:
+      - dreamshops-prometheus-data
+      - ./src/utils/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./src/utils/prometheus/alerts.yml:/etc/prometheus/alerts.yml
+    networks:
+      - dreamshops
+    ports:
+      - ${PROMETHEUS_EXTERNAL_PORT}:${PROMETHEUS_INTERNAL_PORT}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:${PROMETHEUS_INTERNAL_PORT}/-/healthy" ]
+      start_period: 30s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: always
