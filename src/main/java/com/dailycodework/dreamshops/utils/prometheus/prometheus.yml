@@ -30,5 +30,5 @@ scrape_configs:
   # PostgreSQL Database (via postgres-exporter)
   - job_name: 'postgres'
     static_configs:
-      - targets: ['postgres:5432']
+      - targets: ['postgresql-exporter:9187']
     scrape_interval: 10s

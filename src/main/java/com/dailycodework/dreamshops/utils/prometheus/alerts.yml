@@ -83,21 +83,21 @@ groups:
 
       # Alerta para serviços específicos do domínio
       - alert: AppServiceDown
-        expr: up{job="app"} == 0
+        expr: up{job="dreamshops-app"} == 0
         for: 1m
         labels:
           severity: critical
           service: classes
         annotations:
-          summary: "Serviço está offline"
-          description: "O serviço está offline"
+          summary: "Aplicação Spring Boot está offline"
+          description: "A aplicação DreamShops está offline há mais de 1 minuto"
 
       - alert: PostgresServiceDown
-        expr: up{job="postgres"} == 0
+        expr: up{job="postgresql"} == 0
         for: 1m
         labels:
           severity: critical
           service: classes
         annotations:
-          summary: "Postgres está offline"
-          description: "O banco de dados está offline"
+          summary: "PostgreSQL Exporter está offline"
+          description: "O PostgreSQL Exporter está offline há mais de 1 minuto"
