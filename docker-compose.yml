@@ -10,6 +10,9 @@ volumes:
   #  docker volume create dreamshops-prometheus-data     (externo no servidor)
   dreamshops-prometheus-data:
     external: true
+  #  docker volume create dreamshops-sonarqube-data     (externo no servidor)
+  dreamshops-sonarqube-data:
+    external: true
 
 # ---------- SERVIÇOS ----------
 services:
@@ -23,12 +26,14 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRESQL_INTERNAL_HOST: ${POSTGRESQL_INTERNAL_HOST}
+      POSTGRESQL_INTERNAL_PORT: ${POSTGRESQL_INTERNAL_PORT}
     networks:
       - dreamshops
     volumes:
       - dreamshops-postgres-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - ${POSTGRESQL_EXTERNAL_PORT}:${POSTGRESQL_INTERNAL_PORT}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       start_period: 5s
@@ -103,6 +108,37 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:${PROMETHEUS_INTERNAL_PORT}/-/healthy" ]
       start_period: 30s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  # ------------------ SonarQube ------------------
+  sonarqube:
+    container_name: sonarqube
+    build:
+      context: ./src/main/java/com/dailycodework/dreamshops/utils/sonarqube
+      dockerfile: Dockerfile
+    image: dreamshops/sonarqube
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+      - SONAR_CE_JAVAOPTS=-Xmx512m -Xms128m
+      - SONAR_WEB_JAVAOPTS=-Xmx512m -Xms128m
+      - SONAR_SEARCH_JAVAOPTS=-Xmx512m -Xms512m
+    volumes:
+      - dreamshops-sonarqube-data:/opt/sonarqube/data
+      - dreamshops-sonarqube-data:/opt/sonarqube/extensions
+      - dreamshops-sonarqube-data:/opt/sonarqube/logs
+    networks:
+      - dreamshops
+    ports:
+      - "${SONARQUBE_EXTERNAL_PORT}:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/api/system/status"]
+      start_period: 60s
       interval: 30s
       timeout: 10s
       retries: 5
