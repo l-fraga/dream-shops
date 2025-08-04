@@ -1,7 +1,6 @@
 package com.dailycodework.dreamshops.request;
 
 import lombok.Data;
-import org.hibernate.annotations.NaturalId;
 
 @Data
 public class CreateUserRequest {
