@@ -38,8 +38,8 @@ public class ShopConfig {
             "/api/v1/carts/**", 
             "/api/v1/cartItems/**",
             "/api/v1/products/add",
-            "/api/v1/products/product/*/update",
-            "/api/v1/products/product/*/delete"
+            "/api/v1/products/product/{productId}/update",
+            "/api/v1/products/product/{productId}/delete"
     );
 
     private static final List<String> PUBLIC_URLS = List.of(

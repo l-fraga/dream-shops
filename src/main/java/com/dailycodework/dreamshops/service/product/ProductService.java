@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -71,8 +72,21 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProductById(Long id) {
-        productRepository.findById(id).ifPresentOrElse(productRepository::delete, () -> new ProductNotFoundException("Product not found!"));
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
+            
+        try {
+            // Primeiro remove a referência à categoria
+            product.setCategory(null);
+            productRepository.save(product);
+            
+            // Depois deleta o produto
+            productRepository.delete(product);
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting product: " + e.getMessage(), e);
+        }
     }
 
     @Override
