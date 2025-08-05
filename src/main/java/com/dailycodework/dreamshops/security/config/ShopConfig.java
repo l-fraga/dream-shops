@@ -42,13 +42,16 @@ public class ShopConfig {
             "/api/v1/products/product/*/delete"
     );
 
-    private static final List<String> SWAGGER_URLS = List.of(
+    private static final List<String> PUBLIC_URLS = List.of(
+            // Swagger UI
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
             "/api-docs/**",
             "/swagger-resources/**",
-            "/webjars/**"
+            "/webjars/**",
+            // Auth endpoints
+            "/api/v1/auth/**"
     );
 
     @Bean
@@ -82,9 +85,9 @@ public class ShopConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(SWAGGER_URLS.toArray(String[]::new)).permitAll()
+                        .requestMatchers(PUBLIC_URLS.toArray(String[]::new)).permitAll()
                         .requestMatchers(SECURED_URLS.toArray(String[]::new)).authenticated()
-                        .anyRequest().permitAll());
+                        .anyRequest().authenticated());
         http.authenticationProvider(daoAuthenticationProvider());
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();

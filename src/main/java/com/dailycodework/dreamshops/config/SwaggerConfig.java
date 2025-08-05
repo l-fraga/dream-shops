@@ -22,13 +22,16 @@ public class SwaggerConfig {
     public OpenAPI customizeOpenAPI() {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
+            .addSecurityItem(new io.swagger.v3.oas.models.security.SecurityRequirement()
+                .addList(securitySchemeName))
             .components(new Components()
                 .addSecuritySchemes(securitySchemeName,
                     new SecurityScheme()
-                        .name(securitySchemeName)
+                        .name("Authorization")
                         .type(SecurityScheme.Type.HTTP)
                         .scheme("bearer")
                         .bearerFormat("JWT")
+                        .description("Insira apenas o token JWT (sem a palavra Bearer)")
                 ));
     }
 } 
