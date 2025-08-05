@@ -34,8 +34,13 @@ public class ShopConfig {
     private final ShopUserDetailsService userDetailsService;
     private final JwtAuthEntryPoint authEntryPoint;
 
-    private static final List<String> SECURED_URLS =
-            List.of("/api/v1/carts/**", "/api/v1/cartItems/**");
+    private static final List<String> SECURED_URLS = List.of(
+            "/api/v1/carts/**", 
+            "/api/v1/cartItems/**",
+            "/api/v1/products/add",
+            "/api/v1/products/product/*/update",
+            "/api/v1/products/product/*/delete"
+    );
 
     private static final List<String> SWAGGER_URLS = List.of(
             "/swagger-ui/**",
@@ -91,7 +96,7 @@ public class ShopConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**") // Apply to all endpoints
-                        .allowedOrigins("http://localhost:5173") // Allow this origin
+                        .allowedOrigins("http://localhost:5173", "http://localhost:8080") // Allow this origin
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow these HTTP methods
                         .allowedHeaders("*") // Allow all headers
                         .allowCredentials(true); // Allow credentials
