@@ -1,3 +1,60 @@
-target
-.git
-**/*.iml
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Arquivos de build
+target/
+build/
+*.jar
+*.war
+*.ear
+
+# Arquivos de log
+*.log
+logs/
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Arquivos de configuração local
+.env
+.env.local
+.env.*.local
+
+# Arquivos de documentação
+README.md
+*.md
+docs/
+
+# Arquivos de teste
+test/
+tests/
+**/test/
+**/tests/
+
+# Arquivos de Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Arquivos Git
+.git/
+.gitignore
+
+# Arquivos de observabilidade (já estão em containers separados)
+src/main/java/com/dailycodework/dreamshops/utils/grafana/
+src/main/java/com/dailycodework/dreamshops/utils/prometheus/
+src/main/java/com/dailycodework/dreamshops/utils/sonarqube/
+
+# Arquivos de estudo
+study/

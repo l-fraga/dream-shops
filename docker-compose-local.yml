@@ -1,5 +1,0 @@
-services: {}         # Nenhum override de serviço por enquanto
-
-volumes:
-  dreamshops-postgres-data:
-    external: false  # volume fica no host, mas não precisa ser pré‑criado

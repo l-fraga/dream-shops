@@ -28,7 +28,7 @@ RUN mvn -B -ntp dependency:go-offline
 
 # 3. Agora sim copia o restante do código e compila
 COPY src ./src
-RUN mvn -B -ntp clean package -DskipTests
+RUN mvn -B -ntp clean package -DskipTests -Dmaven.test.skip=true -Djacoco.skip=true
 
 # -------------------------------------------------
 # STAGE 2 – runtime (imagem final enxuta)
@@ -40,9 +40,9 @@ WORKDIR /app
 COPY --from=builder /workspace/target/*.jar app.jar
 
 # Expoe portas padrão
-EXPOSE 8080 5005
+EXPOSE 8080
 
 # Ajustes de memória da JVM dentro do container
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
-ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/app.jar"] 
