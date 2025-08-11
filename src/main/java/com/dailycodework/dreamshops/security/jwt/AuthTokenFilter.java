@@ -37,15 +37,33 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (JwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(e.getMessage() + " : Invalid or expired token, you may login and try again!");
-            return;
-        }catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write(e.getMessage());
-            return;
+            // Só retorna erro se a URL requer autenticação
+            String requestURI = request.getRequestURI();
+            if (isSecuredUrl(requestURI)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write(e.getMessage() + " : Invalid or expired token, you may login and try again!");
+                return;
+            }
+        } catch (Exception e) {
+            // Só retorna erro se a URL requer autenticação
+            String requestURI = request.getRequestURI();
+            if (isSecuredUrl(requestURI)) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write(e.getMessage());
+                return;
+            }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isSecuredUrl(String requestURI) {
+        // URLs que requerem autenticação
+        return requestURI.startsWith("/api/v1/carts") ||
+               requestURI.startsWith("/api/v1/cartItems") ||
+               requestURI.startsWith("/api/v1/users") ||
+               requestURI.startsWith("/api/v1/products/add") ||
+               requestURI.matches("/api/v1/products/product/\\d+/update") ||
+               requestURI.matches("/api/v1/products/product/\\d+/delete");
     }
 
     private String parseJwt(HttpServletRequest request){

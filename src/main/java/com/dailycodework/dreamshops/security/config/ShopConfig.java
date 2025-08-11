@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -37,6 +38,7 @@ public class ShopConfig {
     private static final List<String> SECURED_URLS = List.of(
             "/api/v1/carts/**", 
             "/api/v1/cartItems/**",
+            "/api/v1/users/**",
             "/api/v1/products/add",
             "/api/v1/products/product/{productId}/update",
             "/api/v1/products/product/{productId}/delete"
@@ -51,7 +53,16 @@ public class ShopConfig {
             "/swagger-resources/**",
             "/webjars/**",
             // Auth endpoints
-            "/api/v1/auth/**"
+            "/api/v1/auth/**",
+            // Product endpoints (public)
+            "/api/v1/products/all",
+            "/api/v1/products/product/**",
+            "/api/v1/products/product/by-brand",
+            "/api/v1/products/product/**/all/products",
+            // Actuator endpoints (for monitoring)
+            "/actuator/**",
+            "/actuator/health",
+            "/actuator/info"
     );
 
     @Bean
@@ -85,8 +96,8 @@ public class ShopConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_URLS.toArray(String[]::new)).permitAll()
-                        .requestMatchers(SECURED_URLS.toArray(String[]::new)).authenticated()
+                        .requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll()
+                        .requestMatchers(SECURED_URLS.toArray(new String[0])).authenticated()
                         .anyRequest().authenticated());
         http.authenticationProvider(daoAuthenticationProvider());
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -3,12 +3,15 @@ package com.dailycodework.dreamshops.data;
 import com.dailycodework.dreamshops.model.Role;
 import com.dailycodework.dreamshops.model.User;
 import com.dailycodework.dreamshops.repository.UserRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Set;
 
@@ -19,12 +22,20 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    
+    @Value("${app.initialize-data:true}")
+    private boolean initializeData;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
+        if (!initializeData) {
+            System.out.println("Data initialization disabled");
+            return;
+        }
+        
         Set<String> defaultRoles = Set.of("ROLE_ADMIN", "ROLE_USER");
-        createDefaultUserIfNotExits();
         createDefaultRoleIfNotExits(defaultRoles);
+        createDefaultUserIfNotExits();
         createDefaultAdminIfNotExits();
     }
 

@@ -10,6 +10,8 @@ import com.dailycodework.dreamshops.model.Product;
 import com.dailycodework.dreamshops.repository.CategoryRepository;
 import com.dailycodework.dreamshops.repository.ImageRepository;
 import com.dailycodework.dreamshops.repository.ProductRepository;
+
+import java.math.BigDecimal;
 import com.dailycodework.dreamshops.request.AddProductRequest;
 import com.dailycodework.dreamshops.request.ProductUpdateRequest;
 
@@ -42,6 +44,15 @@ public class ProductService implements IProductService {
         // If Yes, set it as the new product category
         // If No, the save it as a new category
         // The set as the new product category.
+
+        // Validações de negócio
+        if (request.getPrice() != null && request.getPrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
+        
+        if (request.getInventory() < 0) {
+            throw new IllegalArgumentException("Inventory cannot be negative");
+        }
 
         if (productExists(request.getName(), request.getBrand())){
             throw new AlreadyExistsException(request.getBrand() + " " + request.getName() + " already exists, you may update this product instead!");
@@ -98,6 +109,15 @@ public class ProductService implements IProductService {
     }
 
     private Product updateExistingProduct(Product existingProduct, ProductUpdateRequest request){
+        // Validações de negócio
+        if (request.getPrice() != null && request.getPrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
+        
+        if (request.getInventory() < 0) {
+            throw new IllegalArgumentException("Inventory cannot be negative");
+        }
+
         existingProduct.setName(request.getName());
         existingProduct.setBrand(request.getBrand());
         existingProduct.setPrice(request.getPrice());

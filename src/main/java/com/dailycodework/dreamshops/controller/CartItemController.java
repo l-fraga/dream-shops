@@ -51,9 +51,9 @@ public class CartItemController {
     }
 
     @PutMapping("/{itemId}/update")
-    public  ResponseEntity<ApiResponse> updateItemQuantity(@PathVariable Long cartId,
-                                                           @PathVariable Long itemId,
-                                                           @RequestParam Integer quantity) {
+    public ResponseEntity<ApiResponse> updateItemQuantity(@PathVariable Long cartId,
+            @PathVariable Long itemId,
+            @RequestParam Integer quantity) {
         try {
             cartItemService.updateItemQuantity(cartId, itemId, quantity);
             return ResponseEntity.ok(new ApiResponse("Update Item Success", null));

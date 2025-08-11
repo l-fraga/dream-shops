@@ -2,6 +2,7 @@ package com.dailycodework.dreamshops.service.user;
 
 import com.dailycodework.dreamshops.dto.UserDto;
 import com.dailycodework.dreamshops.exceptions.AlreadyExistsException;
+import com.dailycodework.dreamshops.exceptions.ResourceNotFoundException;
 import com.dailycodework.dreamshops.model.User;
 import com.dailycodework.dreamshops.repository.UserRepository;
 import com.dailycodework.dreamshops.request.CreateUserRequest;
@@ -26,7 +27,7 @@ public class UserService implements IUserService {
     @Override
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     @Override
@@ -51,13 +52,13 @@ public class UserService implements IUserService {
                     existingUser.setLastName(request.getLastName());
                     return userRepository.save(existingUser);
                 })
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     @Override
     public void deleteUser(Long userId) {
         userRepository.findById(userId).ifPresentOrElse(userRepository::delete, () -> {
-            throw new RuntimeException("User not found!");
+            throw new ResourceNotFoundException("User not found!");
         });
     }
 
