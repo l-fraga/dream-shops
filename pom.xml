@@ -269,8 +269,7 @@
                 </executions>
             </plugin>
             
-            <!-- JaCoCo Code Coverage - COMENTADO PARA BUILD RÁPIDO -->
-            <!--
+            <!-- JaCoCo Code Coverage -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -311,13 +310,20 @@
                     </execution>
                 </executions>
             </plugin>
-            -->
             
             <!-- SonarQube Plugin -->
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>3.10.0.2594</version>
+                <configuration>
+                    <properties>
+                        <sonar.host.url>${env.SONARQUBE_URL}</sonar.host.url>
+                        <sonar.login>${env.SONAR_TOKEN}</sonar.login>
+                        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+                        <sonar.junit.reportPaths>target/surefire-reports,target/failsafe-reports</sonar.junit.reportPaths>
+                    </properties>
+                </configuration>
             </plugin>
             
             <!-- OWASP Dependency Check -->

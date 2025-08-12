@@ -13,6 +13,10 @@ volumes:
     external: true
   dreamshops-sonarqube-data:
     external: true
+  dreamshops-sonarqube-extensions:
+    external: true
+  dreamshops-sonarqube-logs:
+    external: true
   dreamshops-app-data:
     external: true
 
@@ -143,16 +147,29 @@ services:
   # ------------------ SonarQube ------------------
   sonarqube:
     container_name: dreamshops-sonarqube
-    image: sonarqube:latest
+    image: sonarqube:lts
     restart: unless-stopped
     env_file: .env
     environment:
-      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
-      - SONAR_WEB_JAVAOPTS=-Xmx512m -Xms128m
+      - SONAR_WEB_HOST=${SONAR_WEB_HOST}
+      - SONAR_WEB_PORT=${SONAR_WEB_PORT}
+      - SONAR_WEB_CONTEXT=${SONAR_WEB_CONTEXT}
+      - SONAR_JDBC_URL=${SONAR_JDBC_URL}
+      - SONAR_JDBC_USERNAME=${SONAR_JDBC_USERNAME}
+      - SONAR_JDBC_PASSWORD=${SONAR_JDBC_PASSWORD}
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=${SONAR_ES_BOOTSTRAP_CHECKS_DISABLE}
+      - SONAR_SEARCH_JAVAOPTS=-Xmx512m -Xms128m
       - SONAR_CE_JAVAOPTS=-Xmx512m -Xms128m
-      - SONAR_SEARCH_JAVAOPTS=-Xmx512m -Xms512m
+      - SONAR_WEB_JAVAOPTS=-Xmx512m -Xms128m
     volumes:
       - dreamshops-sonarqube-data:/opt/sonarqube/data
+      - dreamshops-sonarqube-extensions:/opt/sonarqube/extensions
+      - dreamshops-sonarqube-logs:/opt/sonarqube/logs
+      # Configuração personalizada centralizada
+      - ./src/main/java/com/dailycodework/dreamshops/utils/sonarqube/conf/sonar.properties:/opt/sonarqube/conf/sonar.properties:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - dreamshops
     ports:
