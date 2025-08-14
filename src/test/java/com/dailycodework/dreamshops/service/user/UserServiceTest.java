@@ -27,11 +27,17 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
- * Testes unitários para UserService seguindo o padrão AAA (Arrange, Act, Assert)
- * e as melhores práticas de testes com JUnit 5 e Mockito.
+ * Testes unitários para UserService
+ * 
+ * Cobertura de cenários:
+ * - CRUD completo de usuários
+ * - Validações de negócio
+ * - Tratamento de exceções
+ * - Conversão de DTOs
+ * - Autenticação
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UserService - Testes Unitários")
+@DisplayName("UserService Unit Tests")
 class UserServiceTest {
 
     @Mock
@@ -44,10 +50,10 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private Authentication authentication;
+    private SecurityContext securityContext;
 
     @Mock
-    private SecurityContext securityContext;
+    private Authentication authentication;
 
     @InjectMocks
     private UserService userService;
@@ -59,227 +65,305 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        // ARRANGE - Preparar dados de teste
         testUser = new User();
         testUser.setId(1L);
-        testUser.setFirstName("João");
-        testUser.setLastName("Silva");
-        testUser.setEmail("joao@email.com");
-        testUser.setPassword("encodedPassword123");
+        testUser.setEmail("test@example.com");
+        testUser.setFirstName("John");
+        testUser.setLastName("Doe");
+        testUser.setPassword("encodedPassword");
 
         createUserRequest = new CreateUserRequest();
-        createUserRequest.setFirstName("João");
-        createUserRequest.setLastName("Silva");
-        createUserRequest.setEmail("joao@email.com");
-        createUserRequest.setPassword("password123");
+        createUserRequest.setEmail("test@example.com");
+        createUserRequest.setFirstName("John");
+        createUserRequest.setLastName("Doe");
+        createUserRequest.setPassword("plainPassword");
 
         updateUserRequest = new UserUpdateRequest();
-        updateUserRequest.setFirstName("João Atualizado");
-        updateUserRequest.setLastName("Silva Atualizado");
+        updateUserRequest.setFirstName("Jane");
+        updateUserRequest.setLastName("Smith");
 
         userDto = new UserDto();
         userDto.setId(1L);
-        userDto.setFirstName("João");
-        userDto.setLastName("Silva");
-        userDto.setEmail("joao@email.com");
+        userDto.setEmail("test@example.com");
+        userDto.setFirstName("John");
+        userDto.setLastName("Doe");
     }
 
     @Test
-    @DisplayName("Deve retornar usuário quando ID existe")
-    void shouldReturnUserWhenIdExists() {
-        // ARRANGE
+    @DisplayName("Deve buscar usuário por ID com sucesso")
+    void shouldGetUserByIdSuccessfully() {
+        // Given
         Long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
-        // ACT
-        User actualUser = userService.getUserById(userId);
+        // When
+        User result = userService.getUserById(userId);
 
-        // ASSERT
-        assertNotNull(actualUser);
-        assertEquals(testUser.getId(), actualUser.getId());
-        assertEquals(testUser.getFirstName(), actualUser.getFirstName());
-        assertEquals(testUser.getEmail(), actualUser.getEmail());
-        verify(userRepository, times(1)).findById(userId);
+        // Then
+        assertNotNull(result, "Usuário não deve ser null");
+        assertEquals(testUser.getId(), result.getId(), "ID deve corresponder");
+        assertEquals(testUser.getEmail(), result.getEmail(), "Email deve corresponder");
+        assertEquals(testUser.getFirstName(), result.getFirstName(), "Nome deve corresponder");
+        assertEquals(testUser.getLastName(), result.getLastName(), "Sobrenome deve corresponder");
+
+        verify(userRepository).findById(userId);
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando usuário não encontrado")
-    void shouldThrowExceptionWhenUserNotFound() {
-        // ARRANGE
-        Long userId = 99L;
+    @DisplayName("Deve lançar exceção quando usuário não encontrado por ID")
+    void shouldThrowExceptionWhenUserNotFoundById() {
+        // Given
+        Long userId = 999L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // ACT & ASSERT
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.getUserById(userId);
-        });
+        // When & Then
+        RuntimeException exception = assertThrows(RuntimeException.class, 
+            () -> userService.getUserById(userId),
+            "Deve lançar RuntimeException quando usuário não encontrado");
 
-        assertEquals("User not found", exception.getMessage());
-        verify(userRepository, times(1)).findById(userId);
+        assertEquals("User not found", exception.getMessage(), 
+            "Mensagem de erro deve estar correta");
+
+        verify(userRepository).findById(userId);
     }
 
     @Test
-    @DisplayName("Deve criar usuário com sucesso quando email não existe")
-    void shouldCreateUserSuccessfullyWhenEmailDoesNotExist() {
-        // ARRANGE
+    @DisplayName("Deve criar usuário com sucesso")
+    void shouldCreateUserSuccessfully() {
+        // Given
+        String encodedPassword = "encodedPassword123";
+        
         when(userRepository.existsByEmail(createUserRequest.getEmail())).thenReturn(false);
-        when(passwordEncoder.encode(createUserRequest.getPassword())).thenReturn("encodedPassword123");
+        when(passwordEncoder.encode(createUserRequest.getPassword())).thenReturn(encodedPassword);
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
-        // ACT
-        User createdUser = userService.createUser(createUserRequest);
+        // When
+        User result = userService.createUser(createUserRequest);
 
-        // ASSERT
-        assertNotNull(createdUser);
-        assertEquals(testUser.getId(), createdUser.getId());
-        assertEquals(testUser.getEmail(), createdUser.getEmail());
-        verify(userRepository, times(1)).existsByEmail(createUserRequest.getEmail());
-        verify(passwordEncoder, times(1)).encode(createUserRequest.getPassword());
-        verify(userRepository, times(1)).save(any(User.class));
+        // Then
+        assertNotNull(result, "Usuário criado não deve ser null");
+        assertEquals(testUser.getId(), result.getId(), "ID deve corresponder");
+        assertEquals(testUser.getEmail(), result.getEmail(), "Email deve corresponder");
+
+        verify(userRepository).existsByEmail(createUserRequest.getEmail());
+        verify(passwordEncoder).encode(createUserRequest.getPassword());
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando tentar criar usuário com email existente")
-    void shouldThrowExceptionWhenCreatingUserWithExistingEmail() {
-        // ARRANGE
+    @DisplayName("Deve lançar exceção quando email já existe")
+    void shouldThrowExceptionWhenEmailAlreadyExists() {
+        // Given
         when(userRepository.existsByEmail(createUserRequest.getEmail())).thenReturn(true);
 
-        // ACT & ASSERT
-        AlreadyExistsException exception = assertThrows(AlreadyExistsException.class, () -> {
-            userService.createUser(createUserRequest);
-        });
+        // When & Then
+        AlreadyExistsException exception = assertThrows(AlreadyExistsException.class,
+            () -> userService.createUser(createUserRequest),
+            "Deve lançar AlreadyExistsException quando email já existe");
 
-        assertEquals("joao@email.com already exists", exception.getMessage());
-        verify(userRepository, times(1)).existsByEmail(createUserRequest.getEmail());
-        verify(userRepository, never()).save(any(User.class));
+        assertEquals(createUserRequest.getEmail() + " already exists", exception.getMessage(),
+            "Mensagem de erro deve estar correta");
+
+        verify(userRepository).existsByEmail(createUserRequest.getEmail());
+        verify(passwordEncoder, never()).encode(any());
+        verify(userRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("Deve atualizar usuário com sucesso quando ID existe")
-    void shouldUpdateUserSuccessfullyWhenIdExists() {
-        // ARRANGE
+    @DisplayName("Deve atualizar usuário com sucesso")
+    void shouldUpdateUserSuccessfully() {
+        // Given
         Long userId = 1L;
         User updatedUser = new User();
         updatedUser.setId(userId);
-        updatedUser.setFirstName("João Atualizado");
-        updatedUser.setLastName("Silva Atualizado");
-        updatedUser.setEmail("joao@email.com");
-
+        updatedUser.setEmail(testUser.getEmail());
+        updatedUser.setFirstName(updateUserRequest.getFirstName());
+        updatedUser.setLastName(updateUserRequest.getLastName());
+        
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
 
-        // ACT
+        // When
         User result = userService.updateUser(updateUserRequest, userId);
 
-        // ASSERT
-        assertNotNull(result);
-        assertEquals(updateUserRequest.getFirstName(), result.getFirstName());
-        assertEquals(updateUserRequest.getLastName(), result.getLastName());
-        verify(userRepository, times(1)).findById(userId);
-        verify(userRepository, times(1)).save(any(User.class));
+        // Then
+        assertNotNull(result, "Usuário atualizado não deve ser null");
+        assertEquals(updateUserRequest.getFirstName(), result.getFirstName(), 
+            "Nome deve ser atualizado");
+        assertEquals(updateUserRequest.getLastName(), result.getLastName(), 
+            "Sobrenome deve ser atualizado");
+
+        verify(userRepository).findById(userId);
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando tentar atualizar usuário inexistente")
+    @DisplayName("Deve lançar exceção ao atualizar usuário inexistente")
     void shouldThrowExceptionWhenUpdatingNonExistentUser() {
-        // ARRANGE
-        Long userId = 99L;
+        // Given
+        Long userId = 999L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // ACT & ASSERT
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.updateUser(updateUserRequest, userId);
-        });
+        // When & Then
+        RuntimeException exception = assertThrows(RuntimeException.class,
+            () -> userService.updateUser(updateUserRequest, userId),
+            "Deve lançar RuntimeException quando usuário não encontrado para atualização");
 
-        assertEquals("User not found", exception.getMessage());
-        verify(userRepository, times(1)).findById(userId);
-        verify(userRepository, never()).save(any(User.class));
+        assertEquals("User not found", exception.getMessage(),
+            "Mensagem de erro deve estar correta");
+
+        verify(userRepository).findById(userId);
+        verify(userRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("Deve deletar usuário com sucesso quando ID existe")
-    void shouldDeleteUserSuccessfullyWhenIdExists() {
-        // ARRANGE
+    @DisplayName("Deve deletar usuário com sucesso")
+    void shouldDeleteUserSuccessfully() {
+        // Given
         Long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
-        // ACT
-        userService.deleteUser(userId);
+        // When
+        assertDoesNotThrow(() -> userService.deleteUser(userId),
+            "Não deve lançar exceção ao deletar usuário existente");
 
-        // ASSERT
-        verify(userRepository, times(1)).findById(userId);
-        verify(userRepository, times(1)).delete(testUser);
+        // Then
+        verify(userRepository).findById(userId);
+        verify(userRepository).delete(testUser);
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando tentar deletar usuário inexistente")
+    @DisplayName("Deve lançar exceção ao deletar usuário inexistente")
     void shouldThrowExceptionWhenDeletingNonExistentUser() {
-        // ARRANGE
-        Long userId = 99L;
+        // Given
+        Long userId = 999L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // ACT & ASSERT
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.deleteUser(userId);
-        });
+        // When & Then
+        RuntimeException exception = assertThrows(RuntimeException.class,
+            () -> userService.deleteUser(userId),
+            "Deve lançar RuntimeException quando usuário não encontrado para deleção");
 
-        assertEquals("User not found!", exception.getMessage());
-        verify(userRepository, times(1)).findById(userId);
-        verify(userRepository, never()).delete(any(User.class));
+        assertEquals("User not found!", exception.getMessage(),
+            "Mensagem de erro deve estar correta");
+
+        verify(userRepository).findById(userId);
+        verify(userRepository, never()).delete(any());
     }
 
     @Test
-    @DisplayName("Deve converter usuário para DTO com sucesso")
-    void shouldConvertUserToDtoSuccessfully() {
-        // ARRANGE
+    @DisplayName("Deve converter User para UserDto corretamente")
+    void shouldConvertUserToDtoCorrectly() {
+        // Given
         when(modelMapper.map(testUser, UserDto.class)).thenReturn(userDto);
 
-        // ACT
+        // When
         UserDto result = userService.convertUserToDto(testUser);
 
-        // ASSERT
-        assertNotNull(result);
-        assertEquals(userDto.getId(), result.getId());
-        assertEquals(userDto.getFirstName(), result.getFirstName());
-        assertEquals(userDto.getEmail(), result.getEmail());
-        verify(modelMapper, times(1)).map(testUser, UserDto.class);
+        // Then
+        assertNotNull(result, "UserDto não deve ser null");
+        assertEquals(userDto.getId(), result.getId(), "ID deve corresponder");
+        assertEquals(userDto.getEmail(), result.getEmail(), "Email deve corresponder");
+        assertEquals(userDto.getFirstName(), result.getFirstName(), "Nome deve corresponder");
+        assertEquals(userDto.getLastName(), result.getLastName(), "Sobrenome deve corresponder");
+
+        verify(modelMapper).map(testUser, UserDto.class);
     }
 
     @Test
-    @DisplayName("Deve retornar usuário autenticado com sucesso")
-    void shouldReturnAuthenticatedUserSuccessfully() {
-        // ARRANGE
-        String userEmail = "joao@email.com";
+    @DisplayName("Deve obter usuário autenticado com sucesso")
+    void shouldGetAuthenticatedUserSuccessfully() {
+        // Given
+        String userEmail = "authenticated@example.com";
+        
+        SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getName()).thenReturn(userEmail);
-        SecurityContextHolder.setContext(securityContext);
         when(userRepository.findByEmail(userEmail)).thenReturn(testUser);
 
-        // ACT
-        User authenticatedUser = userService.getAuthenticatedUser();
+        // When
+        User result = userService.getAuthenticatedUser();
 
-        // ASSERT
-        assertNotNull(authenticatedUser);
-        assertEquals(testUser.getId(), authenticatedUser.getId());
-        assertEquals(testUser.getEmail(), authenticatedUser.getEmail());
-        verify(userRepository, times(1)).findByEmail(userEmail);
+        // Then
+        assertNotNull(result, "Usuário autenticado não deve ser null");
+        assertEquals(testUser.getId(), result.getId(), "ID deve corresponder");
+        assertEquals(testUser.getEmail(), result.getEmail(), "Email deve corresponder");
+
+        verify(securityContext).getAuthentication();
+        verify(authentication).getName();
+        verify(userRepository).findByEmail(userEmail);
     }
 
     @Test
-    @DisplayName("Deve retornar null quando usuário autenticado não encontrado")
-    void shouldReturnNullWhenAuthenticatedUserNotFound() {
-        // ARRANGE
-        String userEmail = "inexistente@email.com";
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn(userEmail);
+    @DisplayName("Deve tratar caso quando não há autenticação no SecurityContext")
+    void shouldHandleNoAuthenticationInSecurityContext() {
+        // Given
         SecurityContextHolder.setContext(securityContext);
-        when(userRepository.findByEmail(userEmail)).thenReturn(null);
+        when(securityContext.getAuthentication()).thenReturn(null);
 
-        // ACT
-        User authenticatedUser = userService.getAuthenticatedUser();
+        // When & Then
+        assertThrows(NullPointerException.class,
+            () -> userService.getAuthenticatedUser(),
+            "Deve lançar NullPointerException quando não há autenticação");
 
-        // ASSERT
-        assertNull(authenticatedUser);
-        verify(userRepository, times(1)).findByEmail(userEmail);
+        verify(securityContext).getAuthentication();
+        verify(userRepository, never()).findByEmail(any());
     }
-} 
+
+    @Test
+    @DisplayName("Deve validar criação de usuário com dados completos")
+    void shouldValidateUserCreationWithCompleteData() {
+        // Given
+        CreateUserRequest completeRequest = new CreateUserRequest();
+        completeRequest.setEmail("complete@example.com");
+        completeRequest.setFirstName("Complete");
+        completeRequest.setLastName("User");
+        completeRequest.setPassword("securePassword123");
+
+        when(userRepository.existsByEmail(completeRequest.getEmail())).thenReturn(false);
+        when(passwordEncoder.encode(completeRequest.getPassword())).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User userToSave = invocation.getArgument(0);
+            userToSave.setId(1L);
+            return userToSave;
+        });
+
+        // When
+        User result = userService.createUser(completeRequest);
+
+        // Then
+        assertNotNull(result, "Usuário criado não deve ser null");
+        assertEquals(completeRequest.getEmail(), result.getEmail(), "Email deve corresponder");
+        assertEquals(completeRequest.getFirstName(), result.getFirstName(), "Nome deve corresponder");
+        assertEquals(completeRequest.getLastName(), result.getLastName(), "Sobrenome deve corresponder");
+        assertEquals("encodedPassword", result.getPassword(), "Senha deve estar codificada");
+
+        verify(userRepository).existsByEmail(completeRequest.getEmail());
+        verify(passwordEncoder).encode(completeRequest.getPassword());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Deve manter dados não atualizáveis durante update")
+    void shouldKeepNonUpdatableFieldsDuringUpdate() {
+        // Given
+        Long userId = 1L;
+        String originalEmail = testUser.getEmail();
+        String originalPassword = testUser.getPassword();
+        
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        User result = userService.updateUser(updateUserRequest, userId);
+
+        // Then
+        assertEquals(originalEmail, result.getEmail(), "Email não deve ser alterado");
+        assertEquals(originalPassword, result.getPassword(), "Senha não deve ser alterada");
+        assertEquals(updateUserRequest.getFirstName(), result.getFirstName(), "Nome deve ser atualizado");
+        assertEquals(updateUserRequest.getLastName(), result.getLastName(), "Sobrenome deve ser atualizado");
+
+        verify(userRepository).findById(userId);
+        verify(userRepository).save(testUser);
+    }
+}
