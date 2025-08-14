@@ -1,103 +1,103 @@
 groups:
-  - name: dreamshops-alerts
-    rules:
-      # Alerta quando um serviço está down
-      - alert: ServiceDown
-        expr: up == 0
-        for: 1m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Serviço {{ $labels.job }} está offline"
-          description: "O serviço {{ $labels.job }} está offline há mais de 1 minuto"
+- name: dreamshops_alerts
+  rules:
 
-      # Alerta para tempo de resposta alto
-      - alert: HighResponseTime
-        expr: http_server_requests_seconds_max > 2
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Tempo de resposta alto para {{ $labels.job }}"
-          description: "O tempo de resposta do serviço {{ $labels.job }} está acima de 2 segundos"
+  # Alert for any instance that is unreachable for >1 minute.
+  - alert: InstanceDown
+    expr: up{job="dreamshops-app"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Instance {{ $labels.instance }} down"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
 
-      # Alerta para uso de memória alto
-      - alert: HighMemoryUsage
-        expr: (jvm_memory_used_bytes / jvm_memory_max_bytes) > 0.8
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Uso de memória alto para {{ $labels.job }}"
-          description: "O uso de memória do serviço {{ $labels.job }} está acima de 80%"
+  # Alert for high error rate (5xx responses)
+  - alert: HighErrorRate
+    expr: sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) by (job) / sum(rate(http_server_requests_seconds_count[5m])) by (job) > 0.05
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High error rate on {{ $labels.job }}"
+      description: "{{ $labels.job }} has a high error rate (current value: {{ $value | humanizePercentage }})"
 
-      # Alerta para uso de CPU alto
-      - alert: HighCPUUsage
-        expr: process_cpu_usage > 0.8
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Uso de CPU alto para {{ $labels.job }}"
-          description: "O uso de CPU do serviço {{ $labels.job }} está acima de 80%"
+  # Alert for high JVM heap memory usage
+  - alert: HighJVMHeapUsage
+    expr: (jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"}) * 100 > 85
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High JVM heap usage on {{ $labels.instance }}"
+      description: "{{ $labels.instance }} has JVM heap usage above 85% (current value: {{ $value }}%)"
 
-      # Alerta para muitas conexões de banco de dados
-      - alert: HighDatabaseConnections
-        expr: hikaricp_connections_active / hikaricp_connections_max > 0.8
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Muitas conexões de banco para {{ $labels.job }}"
-          description: "O serviço {{ $labels.job }} está usando mais de 80% das conexões disponíveis"
+  # Alert for database connection pool high usage
+  - alert: HighDatabaseConnections
+    expr: (hikaricp_connections_active / hikaricp_connections_max) * 100 > 80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High database connections on {{ $labels.instance }}"
+      description: "{{ $labels.instance }} has database connection pool usage above 80% (current value: {{ $value }}%)"
 
-      # Alerta para erro rate alto
-      - alert: HighErrorRate
-        expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) > 0.1
-        for: 2m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Taxa de erro alta para {{ $labels.job }}"
-          description: "O serviço {{ $labels.job }} está retornando muitos erros 5xx"
+  # Alert for high request latency
+  - alert: HighRequestLatency
+    expr: histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (job, le)) > 2
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High request latency on {{ $labels.instance }}"
+      description: "{{ $labels.instance }} has 95th percentile request latency above 2s (current value: {{ $value }}s)"
 
-      # Alerta para garbage collection frequente
-      - alert: FrequentGarbageCollection
-        expr: rate(jvm_gc_collection_seconds_count[5m]) > 10
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Garbage collection frequente para {{ $labels.job }}"
-          description: "O serviço {{ $labels.job }} está fazendo garbage collection muito frequentemente"
+  # Alert for high CPU usage
+  - alert: HighCPUUsage
+    expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage on {{ $labels.instance }}"
+      description: "{{ $labels.instance }} has CPU usage above 80% (current value: {{ $value }}%)"
 
-      # Alerta para tempo de garbage collection alto
-      - alert: LongGarbageCollection
-        expr: jvm_gc_collection_seconds_sum > 1
-        for: 1m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Garbage collection longo para {{ $labels.job }}"
-          description: "O garbage collection do serviço {{ $labels.job }} está demorando mais de 1 segundo"
+  # Alert for high memory usage
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage on {{ $labels.instance }}"
+      description: "{{ $labels.instance }} has memory usage above 85% (current value: {{ $value }}%)"
 
-      # Alerta para serviços específicos do domínio
-      - alert: AppServiceDown
-        expr: up{job="dreamshops-app"} == 0
-        for: 1m
-        labels:
-          severity: critical
-          service: classes
-        annotations:
-          summary: "Aplicação Spring Boot está offline"
-          description: "A aplicação DreamShops está offline há mais de 1 minuto"
+  # Alert for disk space usage
+  - alert: HighDiskUsage
+    expr: (node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes * 100 > 85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High disk usage on {{ $labels.instance }}"
+      description: "{{ $labels.instance }} has disk usage above 85% (current value: {{ $value }}%)"
 
-      - alert: PostgresServiceDown
-        expr: up{job="postgresql"} == 0
-        for: 1m
-        labels:
-          severity: critical
-          service: classes
-        annotations:
-          summary: "PostgreSQL Exporter está offline"
-          description: "O PostgreSQL Exporter está offline há mais de 1 minuto"
+  # Alert for PostgreSQL high connections
+  - alert: PostgreSQLHighConnections
+    expr: pg_stat_database_numbackends > 80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High PostgreSQL connections"
+      description: "PostgreSQL has more than 80 active connections (current value: {{ $value }})"
+
+  # Alert for PostgreSQL slow queries
+  - alert: PostgreSQLSlowQueries
+    expr: rate(pg_stat_activity_max_tx_duration{datname!=""}[5m]) > 30
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Slow PostgreSQL queries detected"
+      description: "PostgreSQL has queries taking longer than 30 seconds (current value: {{ $value }}s)"

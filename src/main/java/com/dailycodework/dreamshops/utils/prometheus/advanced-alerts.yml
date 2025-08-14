@@ -1,0 +1,241 @@
+# ========================================
+# ALERTAS AVANÇADOS - STATUS DINÂMICO
+# ========================================
+# Versão avançada dos alertas com informações dinâmicas baseadas em recording rules
+
+groups:
+  - name: dreamshops_advanced_alerts
+    rules:
+      # ========================================
+      # ALERTAS DE STATUS DINÂMICO
+      # ========================================
+      
+      # Aplicação DOWN - com tempo dinâmico
+      - alert: ApplicationDownAdvanced
+        expr: |
+          dreamshops:application_status == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: dreamshops
+          alert_type: "status_change"
+        annotations:
+          summary: "🚨 {{ $labels.job }} está FORA DO AR há {{ $value | humanizeDuration }}"
+          description: |
+            A aplicação {{ $labels.job }} não está respondendo.
+            Tempo offline: {{ $value | humanizeDuration }}
+            Última verificação: {{ $labels.instance }}
+            Status: CRÍTICO
+
+      # Aplicação UP - notificação de recuperação
+      - alert: ApplicationUpAdvanced
+        expr: |
+          dreamshops:application_status == 1
+        for: 30s
+        labels:
+          severity: info
+          service: dreamshops
+          alert_type: "status_change"
+        annotations:
+          summary: "✅ {{ $labels.job }} está NO AR e funcionando"
+          description: |
+            A aplicação {{ $labels.job }} está operacional.
+            Status: SAUDÁVEL
+            Última verificação: {{ $labels.instance }}
+
+      # Aplicação instável - alternando entre up/down
+      - alert: ApplicationUnstable
+        expr: |
+          changes(dreamshops:application_status[5m]) > 3
+        for: 2m
+        labels:
+          severity: warning
+          service: dreamshops
+          alert_type: "instability"
+        annotations:
+          summary: "⚠️ {{ $labels.job }} está INSTÁVEL - alternando status"
+          description: |
+            A aplicação {{ $labels.job }} está alternando entre online/offline.
+            Mudanças nos últimos 5 minutos: {{ $value }}
+            Status: INSTÁVEL
+
+      # ========================================
+      # ALERTAS DE PERFORMANCE DINÂMICOS
+      # ========================================
+      
+      # Tempo de resposta alto - com contexto
+      - alert: HighResponseTimeAdvanced
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(http_server_requests_seconds_bucket[5m])) by (job, le)
+          ) > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: dreamshops
+          alert_type: "performance"
+        annotations:
+          summary: "🐌 {{ $labels.job }} está LENTO - {{ $value }}s (95th percentile)"
+          description: |
+            Performance degradada detectada em {{ $labels.job }}.
+            Tempo de resposta 95th percentile: {{ $value }}s
+            Threshold: 2s
+            Status: ATENÇÃO
+
+      # Taxa de erro alta - com percentual
+      - alert: HighErrorRateAdvanced
+        expr: |
+          sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) by (job)
+          > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          service: dreamshops
+          alert_type: "errors"
+        annotations:
+          summary: "💥 {{ $labels.job }} com MUITOS ERROS - {{ $value | humanizePercentage }}"
+          description: |
+            Taxa de erro alta detectada em {{ $labels.job }}.
+            Erros por segundo: {{ $value }}
+            Percentual de erros: {{ $value | humanizePercentage }}
+            Status: CRÍTICO
+
+      # ========================================
+      # ALERTAS DE SISTEMA DINÂMICOS
+      # ========================================
+      
+      # CPU alto - com contexto de aplicação
+      - alert: HighCPUUsageAdvanced
+        expr: |
+          100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+          alert_type: "resource"
+        annotations:
+          summary: "🔥 CPU ALTO em {{ $labels.instance }} - {{ $value | humanizePercentage }}"
+          description: |
+            Uso de CPU elevado detectado.
+            CPU atual: {{ $value | humanizePercentage }}
+            Instância: {{ $labels.instance }}
+            Threshold: 80%
+            Status: ATENÇÃO
+
+      # Memória baixa - com contexto
+      - alert: LowMemoryAdvanced
+        expr: |
+          ((node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+          alert_type: "resource"
+        annotations:
+          summary: "💾 MEMÓRIA BAIXA em {{ $labels.instance }} - {{ $value | humanizePercentage }}"
+          description: |
+            Uso de memória crítico detectado.
+            Memória utilizada: {{ $value | humanizePercentage }}
+            Instância: {{ $labels.instance }}
+            Threshold: 90%
+            Status: ATENÇÃO
+
+      # ========================================
+      # ALERTAS DE BANCO DINÂMICOS
+      # ========================================
+      
+      # Conexões de banco altas - com contexto
+      - alert: HighDatabaseConnectionsAdvanced
+        expr: |
+          (hikaricp_connections_active / hikaricp_connections_max) * 100 > 80
+        for: 2m
+        labels:
+          severity: warning
+          service: postgres
+          alert_type: "database"
+        annotations:
+          summary: "🗄️ CONEXÕES DE BANCO ALTAS - {{ $value | humanizePercentage }}"
+          description: |
+            Pool de conexões do banco de dados está alto.
+            Conexões ativas: {{ $value | humanizePercentage }}
+            Threshold: 80%
+            Status: ATENÇÃO
+
+      # ========================================
+      # ALERTAS DE NEGÓCIO DINÂMICOS
+      # ========================================
+      
+      # Falhas em pedidos - com contexto
+      - alert: OrderCreationFailureAdvanced
+        expr: |
+          sum(rate(http_server_requests_seconds_count{uri="/api/v1/orders",status=~"5.."}[5m])) by (job)
+          > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          service: dreamshops
+          alert_type: "business"
+        annotations:
+          summary: "🛒 FALHAS EM PEDIDOS em {{ $labels.job }} - {{ $value | humanizePercentage }}"
+          description: |
+            Falhas na criação de pedidos detectadas.
+            Taxa de falha: {{ $value | humanizePercentage }}
+            Endpoint: /api/v1/orders
+            Status: CRÍTICO - IMPACTO NO NEGÓCIO
+
+      # Falhas em pagamentos - com contexto
+      - alert: PaymentFailureAdvanced
+        expr: |
+          sum(rate(http_server_requests_seconds_count{uri="/api/v1/payments",status=~"5.."}[5m])) by (job)
+          > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          service: dreamshops
+          alert_type: "business"
+        annotations:
+          summary: "💳 FALHAS EM PAGAMENTOS em {{ $labels.job }} - {{ $value | humanizePercentage }}"
+          description: |
+            Falhas em pagamentos detectadas.
+            Taxa de falha: {{ $value | humanizePercentage }}
+            Endpoint: /api/v1/payments
+            Status: CRÍTICO - IMPACTO FINANCEIRO
+
+      # ========================================
+      # ALERTAS DE SEGURANÇA DINÂMICOS
+      # ========================================
+      
+      # Tentativas de força bruta - com contexto
+      - alert: BruteForceAttemptAdvanced
+        expr: |
+          sum(rate(http_server_requests_seconds_count{uri="/api/v1/auth/login"}[5m])) by (job)
+          > 10
+        for: 1m
+        labels:
+          severity: warning
+          service: dreamshops
+          alert_type: "security"
+        annotations:
+          summary: "🔒 POSSÍVEL FORÇA BRUTA em {{ $labels.job }} - {{ $value }} req/min"
+          description: |
+            Muitas tentativas de login detectadas.
+            Tentativas por minuto: {{ $value }}
+            Endpoint: /api/v1/auth/login
+            Status: ATENÇÃO - POSSÍVEL ATAQUE
+
+      # Acessos não autorizados - com contexto
+      - alert: UnauthorizedAccessAdvanced
+        expr: |
+          sum(rate(http_server_requests_seconds_count{status="401"}[5m])) by (job)
+          > 5
+        for: 2m
+        labels:
+          severity: warning
+          service: dreamshops
+          alert_type: "security"
+        annotations:
+          summary: "🚫 ACESSOS NÃO AUTORIZADOS em {{ $labels.job }} - {{ $value }} req/min"
+          description: |
+            Muitos acessos não autorizados detectados.
+            Acessos 401 por minuto: {{ $value }}
+            Status: ATENÇÃO - POSSÍVEL BREACH 

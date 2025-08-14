@@ -1,0 +1,33 @@
+# ========================================
+# REGRAS DE RECORDING - STATUS DA APLICAÇÃO
+# ========================================
+# Estas regras criam métricas customizadas para melhor controle dos alertas
+
+groups:
+  - name: dreamshops_recording_rules
+    rules:
+      # Tempo que a aplicação está down (em segundos)
+      - record: dreamshops:application_down_duration_seconds
+        expr: |
+          time() - (
+            timestamp(up{job="dreamshops-app"} == 0) or vector(0)
+          )
+
+      # Status da aplicação (1 = up, 0 = down)
+      - record: dreamshops:application_status
+        expr: up{job="dreamshops-app"}
+
+      # Última vez que a aplicação estava up
+      - record: dreamshops:application_last_up_timestamp
+        expr: |
+          timestamp(up{job="dreamshops-app"} == 1) or vector(0)
+
+      # Tempo desde a última vez que estava up
+      - record: dreamshops:application_time_since_last_up_seconds
+        expr: |
+          time() - dreamshops:application_last_up_timestamp
+
+      # Status humanizado da aplicação
+      - record: dreamshops:application_status_human
+        expr: |
+          up{job="dreamshops-app"} * 1 
